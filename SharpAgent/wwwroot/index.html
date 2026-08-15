@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.6.1/github-markdown.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Prompt for User Name -->
+    <div id="namePrompt" class="modal">
+        <div class="modal-content">
+            <h2>Welcome!</h2>
+            <p>Please enter your name:</p>
+            <input type="text" id="userName" placeholder="Your Name">
+            <button onclick="submitName()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chatPage" class="chat-container hidden">
+        <header>
+            <h2 id="chatGroupName">Chat</h2>
+            <div class="user-info">
+                <span id="connectionStatus" class="status-disconnected"></span>
+            </div>
+        </header>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Type your message here... ">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@10.0.11/dist/browser/signalr.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <script src="js/scripts.js"></script>
+</body>
+</html>
