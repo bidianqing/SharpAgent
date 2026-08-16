@@ -12,20 +12,18 @@ namespace SharpAgent
     {
         private readonly ChatHistoryStore _historyStore;
         private readonly AgentSessionStore _sessionStore;
-        private readonly LocalShellExecutorStore _localShellExecutorStore;
 
         private readonly ILogger<ChatHub> _logger;
         private readonly OutpubOptions _outpubOptions;
 
         private readonly ChatClientAgent agent;
 
-        public ChatHub(ChatHistoryStore historyStore, AgentSessionStore sessionStore, LocalShellExecutorStore localShellExecutorStore, ILogger<ChatHub> logger, IOptionsMonitor<OutpubOptions> optionsMonitorAccessor, ChatClientAgent agent)
+        public ChatHub(ChatHistoryStore historyStore, AgentSessionStore sessionStore, ILogger<ChatHub> logger, IOptionsMonitor<OutpubOptions> optionsMonitorAccessor, ChatClientAgent agent)
         {
             _outpubOptions = optionsMonitorAccessor.CurrentValue;
             _logger = logger;
             _historyStore = historyStore;
             _sessionStore = sessionStore;
-            _localShellExecutorStore = localShellExecutorStore;
             this.agent = agent;
         }
 
@@ -40,33 +38,6 @@ namespace SharpAgent
                 session = await agent.CreateSessionAsync();
                 _sessionStore.GetOrAdd(conversationId, session);
             }
-
-
-            if (!_localShellExecutorStore.TryGetValue(conversationId, out var localShellExecutor))
-            {
-                localShellExecutor = new LocalShellExecutor(new LocalShellExecutorOptions
-                {
-                    Mode = ShellMode.Persistent,
-                    AcknowledgeUnsafe = true,
-                });
-                _localShellExecutorStore.GetOrAdd(conversationId, localShellExecutor);
-            }
-
-            var options = new ChatClientAgentRunOptions
-            {
-                ChatOptions = new ChatOptions
-                {
-                    // 每个会话单独注册run_shell工具，而非全局注册，这样可以保证每个会话的run_shell工具是独立的
-                    Tools = [
-                        localShellExecutor.AsAIFunction(
-                             name: "run_shell",
-                             description: "执行本地shell命令，用于查询文件、执行脚本、编译代码",
-                             requireApproval: false)
-                    ]
-                }
-            };
-
-
 
             // 非流式传输
             /*
@@ -93,7 +64,7 @@ namespace SharpAgent
             {
                 var approvalRequests = new List<ToolApprovalRequestContent>();
 
-                await foreach (var update in agent.RunStreamingAsync(chatMessage, session, options))
+                await foreach (var update in agent.RunStreamingAsync(chatMessage, session))
                 {
                     if (_logger.IsEnabled(LogLevel.Debug))
                     {

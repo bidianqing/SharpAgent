@@ -1,5 +1,4 @@
 ﻿using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.Tools.Shell;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using OpenAI;
@@ -7,7 +6,6 @@ using OpenAI.Chat;
 using OpenAI.Responses;
 using SharpAgent;
 using System.ClientModel;
-using System.ComponentModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +20,7 @@ builder.Services.Configure<OutpubOptions>(builder.Configuration.GetSection("Outp
 builder.Services.Configure<OpenAIClientOptions>(builder.Configuration.GetSection("OpenAI"));
 
 builder.Services.AddSingleton<ChatHistoryStore>()
-    .AddSingleton<AgentSessionStore>()
-    .AddSingleton<LocalShellExecutorStore>();
+    .AddSingleton<AgentSessionStore>();
 
 // register the ChatClient as follows
 /*
@@ -70,6 +67,20 @@ foreach (McpClientTool tool in tools)
 }
 Console.WriteLine();
 
+// context7 https://context7.com/  https://github.com/mcp/upstash/context7
+//var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
+//{
+//    Endpoint = new Uri("https://mcp.context7.com/mcp"),
+//    Name = "context7",
+//    AdditionalHeaders = new Dictionary<string, string>
+//    {
+//        { "Authorization", "Bearer your apikey"}
+//    }
+//});
+//mcpClient = await McpClient.CreateAsync(httpClientTransport);
+//IList<McpClientTool> context7Tools = await mcpClient.ListToolsAsync();
+
+
 builder.Services.AddSingleton(sp =>
 {
     var loggerFactory = sp.GetService<ILoggerFactory>();
@@ -81,7 +92,7 @@ builder.Services.AddSingleton(sp =>
             ChatOptions = new()
             {
                 Instructions = "You are a helpful assistant. 你可以调用desktop-commander工具操作本地文件系统",
-                Tools = [AIFunctionFactory.Create(GetCurrentLocation), .. tools],
+                Tools = [.. tools],
             },
             ChatHistoryProvider = new InMemoryChatHistoryProvider()
         },
@@ -105,11 +116,3 @@ app.MapControllers();
 app.MapHub<ChatHub>("/chat");
 
 app.Run();
-
-
-[Description("获取用户的当前位置")]
-static string GetCurrentLocation()
-{
-    Console.WriteLine("Getting current location...");
-    return "{\"location\": \"上海\"}";
-}
