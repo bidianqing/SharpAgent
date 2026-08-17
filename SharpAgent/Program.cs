@@ -61,11 +61,6 @@ McpClient mcpClient = await McpClient.CreateAsync(transport, mcpClientOptions);
 // List all available tools from the MCP server.
 Console.WriteLine("Available tools:");
 IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
-foreach (McpClientTool tool in tools)
-{
-    Console.WriteLine($"{tool}");
-}
-Console.WriteLine();
 
 // context7 https://context7.com/  https://github.com/mcp/upstash/context7
 //var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
