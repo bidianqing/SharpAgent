@@ -1,5 +1,4 @@
 ﻿using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.Tools.Shell;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
