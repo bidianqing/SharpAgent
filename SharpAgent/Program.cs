@@ -58,8 +58,6 @@ var mcpClientOptions = new McpClientOptions
 };
 McpClient mcpClient = await McpClient.CreateAsync(transport, mcpClientOptions);
 
-// List all available tools from the MCP server.
-Console.WriteLine("Available tools:");
 IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
 
 // context7 https://context7.com/  https://github.com/mcp/upstash/context7
