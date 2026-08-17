@@ -9,7 +9,6 @@
     <PackageReference Include="Microsoft.Agents.AI.Mcp" Version="1.17.0-alpha.260804.1" />
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.17.0" />
     <PackageReference Include="Microsoft.Agents.AI.Tools.Shell" Version="1.17.0-preview.260804.1" />
-    <PackageReference Include="Microsoft.Agents.AI.Workflows.Declarative.Mcp" Version="1.17.0" />
   </ItemGroup>
 
 </Project>
