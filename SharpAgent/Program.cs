@@ -1,11 +1,14 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ModelContextProtocol.Client;
 using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Responses;
 using SharpAgent;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,30 +20,19 @@ builder.Services.AddSignalR();
 
 builder.Services.Configure<OutpubOptions>(builder.Configuration.GetSection("OutpubOptions"));
 
-builder.Services.Configure<OpenAIClientOptions>(builder.Configuration.GetSection("OpenAI"));
+builder.Services.Configure<OpenAIClientOptions>(builder.Configuration.GetSection(nameof(OpenAIClientOptions)))
+    .PostConfigure<OpenAIClientOptions>((options) =>
+    {
+        //options.AddPolicy(new BodyLoggingPolicy(), PipelinePosition.PerCall);
+    });
 
 builder.Services.AddSingleton<ChatHistoryStore>()
     .AddSingleton<AgentSessionStore>();
 
-// register the ChatClient as follows
-/*
-  "OpenAI": {
-    "Model": "kimi-k3",
-    "Options": {
-      "Endpoint":  "https://api.moonshot.cn/v1"
-    },
-    "Credential": {
-      "CredentialSource": "ApiKeyCredential",
-      "Key": "your_api_key"
-    }
-  }
-//*/
-builder.AddChatClient("OpenAI");
-
 builder.Services.AddSingleton(sp =>
 {
-    var openAIClientOptions = sp.GetService<OpenAIClientOptions>();
-    var key = builder.Configuration["OpenAI:Credential:Key"];
+    var openAIClientOptions = (sp.GetService<IOptions<OpenAIClientOptions>>()).Value;
+    var key = builder.Configuration["OpenAIClientOptions:ApiKey"];
     return new OpenAIClient(new ApiKeyCredential(key), openAIClientOptions);
 });
 
@@ -57,8 +49,7 @@ var mcpClientOptions = new McpClientOptions
     InitializationTimeout = TimeSpan.FromSeconds(120)
 };
 McpClient mcpClient = await McpClient.CreateAsync(transport, mcpClientOptions);
-
-IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
+var desktopCommanderTools = await mcpClient.ListToolsAsync();
 
 // context7 https://context7.com/  https://github.com/mcp/upstash/context7
 //var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
@@ -77,15 +68,15 @@ IList<McpClientTool> tools = await mcpClient.ListToolsAsync();
 builder.Services.AddSingleton(sp =>
 {
     var loggerFactory = sp.GetService<ILoggerFactory>();
-    var chatClient = sp.GetService<ChatClient>();
+    var openAIClient = sp.GetService<OpenAIClient>();
 
-    var agent = chatClient.AsAIAgent(
+    var agent = openAIClient.GetChatClient(builder.Configuration["OpenAIClientOptions:Model"]).AsAIAgent(
         options: new ChatClientAgentOptions()
         {
             ChatOptions = new()
             {
                 Instructions = "You are a helpful assistant. 你可以调用desktop-commander工具操作本地文件系统",
-                Tools = [.. tools],
+                Tools = [.. desktopCommanderTools],
             },
             ChatHistoryProvider = new InMemoryChatHistoryProvider()
         },
