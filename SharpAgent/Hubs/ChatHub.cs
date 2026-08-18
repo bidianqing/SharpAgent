@@ -30,7 +30,12 @@ namespace SharpAgent
         {
             var id = Guid.NewGuid().ToString();
 
-            var chatMessage = new ChatMessage(ChatRole.User, message);
+            var chatMessage = new ChatMessage(ChatRole.User, message)
+            {
+                AuthorName = userName,
+                CreatedAt = DateTimeOffset.UtcNow,
+                MessageId = Guid.CreateVersion7().ToString(),
+            };
 
             if (!_sessionStore.TryGetValue(conversationId, out var session))
             {
@@ -176,7 +181,7 @@ namespace SharpAgent
             {
                 var allMessages = _historyStore.GetMessages(conversationId);
 
-                _logger.LogDebug(JsonSerializer.Serialize(allMessages, new JsonSerializerOptions() { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
+                _logger.LogDebug(JsonSerializer.Serialize(allMessages, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
             }
 
             //*/
