@@ -12,7 +12,6 @@ namespace SharpAgent
 
         public void SetChatMessages(string conversationId, List<ChatMessage> messages)
         {
-            //_store.GetOrAdd(conversationId, _ => new List<ChatMessage>());
             _store[conversationId] = messages;
         }
 
