@@ -12,16 +12,10 @@ git clone https://github.com/bidianqing/SharpAgent
 ### 配置文件
 ```
 {
-  "OpenAI": {
-    "Endpoint": "https://api.deepseek.com",
-    "Options": {
-      "Endpoint": "https://api.deepseek.com"
-    },
-    "Model": "deepseek-v4-flash",
-    "Credential": {
-      "CredentialSource": "ApiKeyCredential",
-      "Key": ""
-    }
+  "OpenAIClientOptions": {
+    "Endpoint": "",
+    "Model": "",
+    "ApiKey": ""
   }
 }
 ```
