@@ -1,6 +1,5 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ModelContextProtocol.Client;
 using OpenAI;
@@ -8,7 +7,6 @@ using OpenAI.Chat;
 using OpenAI.Responses;
 using SharpAgent;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
 

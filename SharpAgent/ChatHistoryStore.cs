@@ -10,10 +10,10 @@ namespace SharpAgent
         private readonly ConcurrentDictionary<string, List<ChatMessage>> _store = new();
 
 
-        public void SetChatMessages(string conversationId, IList<ChatMessage> messages)
+        public void SetChatMessages(string conversationId, List<ChatMessage> messages)
         {
-            _store.GetOrAdd(conversationId, _ => new List<ChatMessage>());
-            _store[conversationId] = messages.ToList();
+            //_store.GetOrAdd(conversationId, _ => new List<ChatMessage>());
+            _store[conversationId] = messages;
         }
 
 
@@ -23,6 +23,7 @@ namespace SharpAgent
             {
                 return messages;
             }
+
             return new List<ChatMessage>();
         }
     }
