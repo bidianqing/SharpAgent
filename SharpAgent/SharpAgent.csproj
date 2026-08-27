@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Agents.AI.Mcp" Version="1.18.0-alpha.260818.1" />
-    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.18.0" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.19.0" />
   </ItemGroup>
 
 </Project>

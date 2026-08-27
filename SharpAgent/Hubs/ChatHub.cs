@@ -171,8 +171,6 @@ namespace SharpAgent
                 chatMessage = responses.Count == 1 ? responses[0] : new ChatMessage(ChatRole.User, responses.SelectMany(r => r.Contents).ToList());
             }
 
-
-
             // 从[多轮]的[流式输出]中提取结构化的List<ChatMessage> 保存到history
             session.TryGetInMemoryChatHistory(out List<ChatMessage> sessionMessages);
             _historyStore.SetChatMessages(conversationId, sessionMessages);
@@ -183,8 +181,6 @@ namespace SharpAgent
 
                 _logger.LogDebug(JsonSerializer.Serialize(allMessages, new JsonSerializerOptions() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
             }
-
-            //*/
         }
 
         public override async Task OnConnectedAsync()
