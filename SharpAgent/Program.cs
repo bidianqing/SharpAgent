@@ -64,6 +64,16 @@ mcpClient = await McpClient.CreateAsync(httpClientTransport);
 IList<McpClientTool> context7Tools = await mcpClient.ListToolsAsync();
 //*/
 
+// tavily-mcp https://github.com/tavily-ai/tavily-mcp
+var tavilyApiKey = builder.Configuration["TavilyApiKey"];
+var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
+{
+    Endpoint = new Uri("https://mcp.tavily.com/mcp/?tavilyApiKey=" + tavilyApiKey),
+    Name = "tavily-mcp",
+});
+mcpClient = await McpClient.CreateAsync(httpClientTransport);
+var tavilyMcpTools = await mcpClient.ListToolsAsync();
+
 string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 string skillPath = Path.Combine(userProfile, ".sharp-agent", "skills");
 Directory.CreateDirectory(skillPath);
@@ -80,7 +90,7 @@ builder.Services.AddSingleton(sp =>
             ChatOptions = new()
             {
                 Instructions = "You are a helpful assistant.",
-                Tools = [.. desktopCommanderTools],
+                Tools = [.. desktopCommanderTools, .. tavilyMcpTools],
             },
             ChatHistoryProvider = new InMemoryChatHistoryProvider(),
             AIContextProviders = [skillsProvider]
