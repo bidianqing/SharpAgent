@@ -50,18 +50,24 @@ McpClient mcpClient = await McpClient.CreateAsync(transport, mcpClientOptions);
 var desktopCommanderTools = await mcpClient.ListToolsAsync();
 
 // context7 https://context7.com/  https://github.com/mcp/upstash/context7
-//var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
-//{
-//    Endpoint = new Uri("https://mcp.context7.com/mcp"),
-//    Name = "context7",
-//    AdditionalHeaders = new Dictionary<string, string>
-//    {
-//        { "Authorization", "Bearer your apikey"}
-//    }
-//});
-//mcpClient = await McpClient.CreateAsync(httpClientTransport);
-//IList<McpClientTool> context7Tools = await mcpClient.ListToolsAsync();
+/*
+var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
+{
+    Endpoint = new Uri("https://mcp.context7.com/mcp"),
+    Name = "context7",
+    AdditionalHeaders = new Dictionary<string, string>
+    {
+        { "Authorization", "Bearer your apikey"}
+    }
+});
+mcpClient = await McpClient.CreateAsync(httpClientTransport);
+IList<McpClientTool> context7Tools = await mcpClient.ListToolsAsync();
+//*/
 
+string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+string skillPath = Path.Combine(userProfile, ".sharp-agent", "skills");
+Directory.CreateDirectory(skillPath);
+var skillsProvider = new AgentSkillsProvider(skillPath);
 
 builder.Services.AddSingleton(sp =>
 {
@@ -73,10 +79,11 @@ builder.Services.AddSingleton(sp =>
         {
             ChatOptions = new()
             {
-                Instructions = "You are a helpful assistant. 你可以调用desktop-commander工具操作本地文件系统",
+                Instructions = "You are a helpful assistant.",
                 Tools = [.. desktopCommanderTools],
             },
-            ChatHistoryProvider = new InMemoryChatHistoryProvider()
+            ChatHistoryProvider = new InMemoryChatHistoryProvider(),
+            AIContextProviders = [skillsProvider]
         },
         clientFactory: null,
         loggerFactory: loggerFactory,
