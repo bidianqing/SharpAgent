@@ -34,20 +34,19 @@ builder.Services.AddSingleton(sp =>
     return new OpenAIClient(new ApiKeyCredential(key), openAIClientOptions);
 });
 
-// Create the MCP client.
-// Configure it to start and connect to your MCP server.
-var transport = new StdioClientTransport(new()
+// https://github.com/wonderwhy-er/DesktopCommanderMCP
+var desktopCommanderTransport = new StdioClientTransport(new()
 {
     Command = "npx",
     Arguments = new[] { "-y", "@wonderwhy-er/desktop-commander@latest" },
     Name = "desktop-commander",
 });
-var mcpClientOptions = new McpClientOptions
+var desktopCommanderOptions = new McpClientOptions
 {
     InitializationTimeout = TimeSpan.FromSeconds(120)
 };
-McpClient mcpClient = await McpClient.CreateAsync(transport, mcpClientOptions);
-var desktopCommanderTools = await mcpClient.ListToolsAsync();
+var desktopCommanderClient = await McpClient.CreateAsync(desktopCommanderTransport, desktopCommanderOptions);
+var desktopCommanderTools = await desktopCommanderClient.ListToolsAsync();
 
 // context7 https://context7.com/  https://github.com/mcp/upstash/context7
 /*
@@ -66,13 +65,13 @@ IList<McpClientTool> context7Tools = await mcpClient.ListToolsAsync();
 
 // tavily-mcp https://github.com/tavily-ai/tavily-mcp
 var tavilyApiKey = builder.Configuration["TavilyApiKey"];
-var httpClientTransport = new HttpClientTransport(new HttpClientTransportOptions
+var tavilyTransport = new HttpClientTransport(new HttpClientTransportOptions
 {
     Endpoint = new Uri("https://mcp.tavily.com/mcp/?tavilyApiKey=" + tavilyApiKey),
     Name = "tavily-mcp",
 });
-mcpClient = await McpClient.CreateAsync(httpClientTransport);
-var tavilyMcpTools = await mcpClient.ListToolsAsync();
+var tavilyClient = await McpClient.CreateAsync(tavilyTransport);
+var tavilyTools = await tavilyClient.ListToolsAsync();
 
 string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 string skillPath = Path.Combine(userProfile, ".sharp-agent", "skills");
@@ -87,10 +86,11 @@ builder.Services.AddSingleton(sp =>
     var agent = openAIClient.GetChatClient(builder.Configuration["OpenAIClientOptions:Model"]).AsAIAgent(
         options: new ChatClientAgentOptions()
         {
+            Name = "SharpAgent",
             ChatOptions = new()
             {
                 Instructions = "You are a helpful assistant.",
-                Tools = [.. desktopCommanderTools, .. tavilyMcpTools],
+                Tools = [.. desktopCommanderTools, .. tavilyTools],
             },
             ChatHistoryProvider = new InMemoryChatHistoryProvider(),
             AIContextProviders = [skillsProvider]
