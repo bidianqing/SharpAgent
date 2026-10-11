@@ -25,7 +25,7 @@ builder.Services.Configure<OpenAIClientOptions>(builder.Configuration.GetSection
     });
 
 builder.Services.AddSingleton<ChatHistoryStore>()
-    .AddSingleton<AgentSessionStore>();
+    .AddSingleton<SharpAgent.AgentSessionStore>();
 
 builder.Services.AddSingleton(sp =>
 {
